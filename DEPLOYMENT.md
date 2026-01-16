@@ -31,23 +31,21 @@ The SystemX deployment script is designed for authorized system operators to:
 - Git installed
 - Network connectivity to github.com and GitHub API
 
+## Authentication
+
+System-X installations require a **GitHub Personal Access Token (PAT)** for authorised use. Contact FreeSTAR admin team.
+
 ## Quick Start
 
 ### 1. Download the Deployment Script
 
 ```bash
-# Obtain systemx-deploy.sh from your System-X administrator
-# Contact: shane@freestar.network
-chmod +x systemx-deploy.sh
-```
-
-### 2. Run as Root
-
-```bash
+git clone https://github.com/ShaYmez/freestar-systemx-deploy.git
+cd freestar-systemx-deploy.git
 sudo ./systemx-deploy.sh
 ```
 
-### 3. Follow the Interactive Menu
+### 2. Follow the Interactive Menu
 
 The script presents an interactive menu with the following options:
 
@@ -56,20 +54,17 @@ The script presents an interactive menu with the following options:
 | **[1]** | Install System-X (fresh installation) |
 | **[2]** | Upgrade System-X (existing installation) |
 | **[3]** | Uninstall System-X |
-| **[4]** | Utilities (backup, restore, diagnostics) |
+| **[4]** | Utilities (backup, restore, diagnostics, migration) |
 | **[5]** | System Information |
 | **[6]** | Validate Token |
 | **[7]** | Help & Documentation |
 | **[0]** | Exit |
 
-## Authentication
-
-System-X installations require a **GitHub Personal Access Token (PAT)** for repository access.
 
 ### Obtaining a Token
 
-1. Contact your FreeSTAR SystemX administrator
-2. They will generate a Personal Access Token with appropriate permissions
+1. Contact your FreeSTAR administrator
+2. They will generate a Personal Access Token with appropriate permissions and asign it to your installation. This is used for updates and upgrades.
 
 ### Token Formats
 
