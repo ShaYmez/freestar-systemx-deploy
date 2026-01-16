@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - **Public Deployment System**: New token-based deployment engine (`deployment/systemx-deploy.sh`) for secure remote updates
-- **Multilingual Support**: Complete language system with 5 languages (English, Spanish, Italian, Portuguese, Chinese)
+- **Multilingual Support**: Complete language system with 11 languages (English, Spanish, Portuguese, German, Dutch, Italian, Portuguese, Chinese, Russian, Arabic, Japanese), menu driven with locale support.
 - **Unified Control Scripts**: New `systemx-common` shared library consolidating all control script functionality
 - **Hierarchical Menu System**: Reorganized menu with service control, configuration, updates, and utilities submenus
 - **Configuration Editor**: New `systemx-config` tool for editing all configuration files
