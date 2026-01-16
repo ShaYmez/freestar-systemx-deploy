@@ -2,16 +2,16 @@
 
 **Professional DMR Network Platform for Ham Radio Operators**
 
-FreeSTAR System-X is a comprehensive, enterprise-grade DMR network platform designed for the amateur radio community. Built on proven technologies, it provides system operators with a reliable, scalable solution for managing DMR networks and serving the Ham Radio DMR community.
+FreeSTAR System-X is a comprehensive, enterprise-grade DMR network platform designed for the amateur radio community. Built on proven open-source technologies, it provides system operators with a reliable, scalable solution for managing DMR networks and serving the Ham Radio DMR community.
 
 ## What is FreeSTAR System-X?
 
-FreeSTAR System-X delivers a complete DMR network infrastructure including:
+FreeSTAR System-X delivers a complete DMR network infrastructure using **RYSEN DMRMaster+** server software including:
 
 - Full-featured network management and monitoring
 - Real-time dashboard and analytics
 - Multi-site network coordination
-- Automated updates and maintenance
+- Automated updates and maintenance using github token api
 - Professional support from the FreeSTAR team
 
 The platform is designed to help sysops build and maintain high-quality DMR networks that serve their communities effectively.
@@ -69,11 +69,12 @@ FreeSTAR System-X is available to qualified system operators who meet specific c
 - **Ubuntu**: 22.04 LTS, 24.04 LTS
 
 ### Minimum Hardware Requirements
-
+- **VPS/Bare Metal**: A VM or enterprise grade server for stability (No home serving!)
+- **Standalone**: Recommended stand-alone system dedicated for this software (Reduces conficts)
 - **CPU**: 2 cores (4 cores recommended)
 - **RAM**: 2 GB (4 GB recommended)
 - **Disk Space**: 20 GB free space minimum
-- **Network**: Active internet connection required
+- **Network**: Active internet connection required and dedicated fixed IP
 
 ### Software Requirements
 
