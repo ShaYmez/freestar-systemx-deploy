@@ -975,6 +975,31 @@ EOFSPANISH
     fi
     echo ""
     
+    # Install Token Status Broadcaster
+    print_header "Token Status Broadcaster Setup"
+    
+    if [ -f "$temp_dir/configs/sbin/systemx-token-broadcaster" ]; then
+        print_info "Installing token status broadcaster..."
+        cp "$temp_dir/configs/sbin/systemx-token-broadcaster" /usr/local/sbin/systemx-token-broadcaster
+        chmod 755 /usr/local/sbin/systemx-token-broadcaster
+        chown root:root /usr/local/sbin/systemx-token-broadcaster
+        print_success "Broadcaster installed"
+        
+        # Add cron job
+        if ! crontab -l 2>/dev/null | grep -q "systemx-token-broadcaster"; then
+            (crontab -l 2>/dev/null; echo "*/5 * * * * /usr/local/sbin/systemx-token-broadcaster >/dev/null 2>&1") | crontab -
+            print_success "Cron job configured"
+        fi
+        
+        # Report initial status
+        /usr/local/sbin/systemx-token-broadcaster &
+        print_success "Status reported"
+    else
+        print_warning "Broadcaster not found in repository"
+    fi
+    
+    echo ""
+    
     # Update docker-compose.yml
     print_info "Updating docker-compose.yml..."
     if [ -f "$temp_dir/configs/docker-configs/docker-compose-user.yml" ]; then
