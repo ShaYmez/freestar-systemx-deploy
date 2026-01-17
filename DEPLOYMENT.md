@@ -42,7 +42,7 @@ System-X installations require a **GitHub Personal Access Token (PAT)** for auth
 ```bash
 cd /opt
 git clone https://github.com/ShaYmez/freestar-systemx-deploy.git
-cd freestar-systemx-deploy.git
+cd freestar-systemx-deploy
 sudo ./systemx-deploy.sh
 ```
 
