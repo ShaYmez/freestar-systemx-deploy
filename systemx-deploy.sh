@@ -847,6 +847,39 @@ migrate_from_v13() {
     print_success "Backup created: $backup_path"
     echo ""
     
+    # One-time v1.3.9r3 → v1.4.0 config migration
+    print_info "Checking for v1.3.9r3 configuration files..."
+    
+    if [ -f "/etc/rysen/proxy.cfg" ] && [ ! -f "/etc/rysen/proxy-selfcare.cfg" ]; then
+        print_info "Migrating v1.3.9r3 proxy.cfg → proxy-selfcare.cfg..."
+        cp /etc/rysen/proxy.cfg /etc/rysen/proxy-selfcare.cfg
+        
+        if ! grep -q "^\[SELF SERVICE\]" /etc/rysen/proxy-selfcare.cfg; then
+            cat >> /etc/rysen/proxy-selfcare.cfg << 'EOF'
+
+[SELF SERVICE]
+USE_SELFSERVICE = True
+SERVER = 172.16.238.11
+USERNAME = selfcare
+# CHANGE THIS BEFORE PRODUCTION DEPLOYMENT!
+PASSWORD = freestar3
+DB_NAME = selfcare
+PORT = 3306
+EOF
+        fi
+        
+        mv /etc/rysen/proxy.cfg /etc/rysen/proxy.cfg.v13-backup
+        print_success "Migrated proxy.cfg (backup: proxy.cfg.v13-backup)"
+    fi
+    
+    if [ -f "/etc/rysen/rymon.cfg" ] && [ ! -f "/etc/rysen/fdmr-mon.cfg" ]; then
+        print_info "Migrating ancient rymon.cfg → fdmr-mon.cfg..."
+        cp /etc/rysen/rymon.cfg /etc/rysen/fdmr-mon.cfg
+        mv /etc/rysen/rymon.cfg /etc/rysen/rymon.cfg.ancient-backup
+        print_success "Migrated rymon.cfg (backup: rymon.cfg.ancient-backup)"
+    fi
+    echo ""
+    
     # Clone repository
     print_info "Cloning System-X repository..."
     # Use /opt/tmp for migration to keep working files separate from system /tmp
@@ -996,6 +1029,27 @@ EOFSPANISH
         print_success "Status reported"
     else
         print_warning "Broadcaster not found in repository"
+    fi
+    
+    # Install Automatic Update Checker
+    if [ -f "$temp_dir/configs/sbin/systemx-check-updates-cron" ]; then
+        print_info "Installing automatic update checker..."
+        cp "$temp_dir/configs/sbin/systemx-check-updates-cron" /usr/local/sbin/systemx-check-updates-cron
+        chmod 755 /usr/local/sbin/systemx-check-updates-cron
+        chown root:root /usr/local/sbin/systemx-check-updates-cron
+        print_success "Update checker installed"
+        
+        # Add cron job
+        if ! crontab -l 2>/dev/null | grep -q "systemx-check-updates-cron"; then
+            (crontab -l 2>/dev/null; echo "0 2 * * * /usr/local/sbin/systemx-check-updates-cron >/dev/null 2>&1") | crontab -
+            print_success "Update check cron job configured (daily at 2 AM)"
+        fi
+        
+        # Run initial update check
+        /usr/local/sbin/systemx-check-updates-cron &
+        print_success "Initial update check completed"
+    else
+        print_warning "Update checker not found in repository"
     fi
     
     echo ""
