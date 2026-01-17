@@ -40,6 +40,7 @@ System-X installations require a **GitHub Personal Access Token (PAT)** for auth
 ### 1. Download the Deployment Script
 
 ```bash
+cd /opt
 git clone https://github.com/ShaYmez/freestar-systemx-deploy.git
 cd freestar-systemx-deploy.git
 sudo ./systemx-deploy.sh
