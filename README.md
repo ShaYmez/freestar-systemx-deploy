@@ -55,11 +55,11 @@ The deployment guide includes:
 
 ## What is FreeSTAR System-X?
 
-FreeSTAR System-X delivers a complete DMR network infrastructure using **RYSEN DMRMaster+** server software. The platform combines powerful features with ease of management:
+FreeSTAR System-X delivers a complete DMR master server stack using **RYSEN DMRMaster+** and other software packages bundled together with Docker. The platform combines powerful features with ease of management reliability and global connectivity:
 
-- **Full-featured Network Management** - Comprehensive control over your DMR network
+- **Full-featured Server Management** - Comprehensive control over your DMR master server
 - **Real-time Dashboard & Analytics** - Monitor activity, connections, and performance
-- **Multi-site Network Coordination** - Seamlessly connect multiple repeater sites
+- **Multi-site Network Coordination** - Seamlessly connect wth OpenBridge to other master servers
 - **Automated Updates & Maintenance** - Secure GitHub token-based update system
 - **Professional Support** - Backed by the experienced FreeSTAR team
 
