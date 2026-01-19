@@ -46,34 +46,7 @@ sudo apt install -y git curl
 sudo apt install -y openssh-server
 ```
 
-### 2. Docker Installation
-
-Install Docker and Docker Compose v2:
-
-```bash
-# Install Docker
-sudo apt install -y docker.io
-
-# Start and enable Docker service
-sudo systemctl start docker
-sudo systemctl enable docker
-
-# Install Docker Compose v2
-sudo apt install -y docker-compose-v2
-
-# Verify installation
-docker --version
-docker compose version
-```
-
-Add your user to the docker group (optional, for non-root usage):
-```bash
-sudo usermod -aG docker $USER
-```
-
-**Note:** Log out and back in for group changes to take effect.
-
-### 3. SSH Security Configuration
+### 2. SSH Security Configuration
 
 #### Enable SSH Service
 ```bash
@@ -137,7 +110,7 @@ From another terminal or system, verify SSH key authentication works:
 ssh -i /path/to/admin/key user@your-server-ip
 ```
 
-### 4. Firewall Configuration
+### 3. Firewall Configuration
 
 **⚠️ IMPORTANT - VPS/Cloud Providers:** If using Vultr, DigitalOcean, AWS, or other VPS/cloud providers, **disable UFW** as it conflicts with their firewall management systems: 
 
@@ -160,7 +133,7 @@ sudo ufw allow 62031/udp        # DMR ports (adjust as needed)
 sudo ufw enable
 ```
 
-### 5. Pre-Installation Verification Checklist
+### 4. Pre-Installation Verification Checklist
 
 Before proceeding with System-X deployment, verify: 
 
