@@ -585,6 +585,15 @@ restore_backup() {
         print_success "Logs restored"
     fi
     
+    # Create selfcare log files with correct permissions
+    print_info "Setting up selfcare log files..."
+    mkdir -p /var/log/rysen
+    touch /var/log/rysen/security-audit.log
+    touch /var/log/rysen/login-attempts.log
+    chown www-data:www-data /var/log/rysen/security-audit.log /var/log/rysen/login-attempts.log
+    chmod 644 /var/log/rysen/security-audit.log /var/log/rysen/login-attempts.log
+    print_success "Selfcare log files created"
+    
     print_info "Starting System-X services..."
     if [ -x /usr/local/sbin/systemx-start ]; then
         /usr/local/sbin/systemx-start
@@ -1098,7 +1107,7 @@ EOFSPANISH
     docker compose pull
     
     print_info "Starting containers..."
-    if docker compose up -d; then
+    if docker compose up -d --force-recreate; then
         print_success "Services started"
         sleep 5
         
