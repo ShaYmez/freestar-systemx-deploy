@@ -1,5 +1,5 @@
 # FreeSTAR System-X (Stack)
-**RYSEN DMRMaster+ Docker Deployment and Managment System installation**
+**RYSEN DMRMaster+ Docker Deployment and Management Install**
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Version](https://img.shields.io/badge/version-1.4.0-green.svg)
