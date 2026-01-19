@@ -2,11 +2,11 @@
 
 **Deployment for FreeSTAR SystemX installations**
 
-This repository contains `systemx-deploy.sh`, a comprehensive deployment and management tool for authorised System-X installations. It provides automated installation, upgrades, backups, and system utilities through an interactive menu interface.
+This repository contains `systemx-deploy.sh`, a comprehensive deployment and management tool for authorised System-X installations.  It provides automated installation, upgrades, backups, and system utilities.
 
 ## Overview
 
-The SystemX deployment script is designed for authorized system operators to:
+The SystemX deployment script is designed for authorized system operators to: 
 - **Install** new System-X instances
 - **Upgrade** existing installations
 - **Manage** configurations and backups
@@ -25,19 +25,168 @@ The SystemX deployment script is designed for authorized system operators to:
 - **Storage:** 20 GB available disk space
 - **Network:** Stable internet connection with GitHub access
 
-### Prerequisites
-- Root or sudo access
-- Docker and Docker Compose v2
-- Git installed
-- Network connectivity to github.com and GitHub API
+## Pre-Installation Setup
+
+**IMPORTANT:** Complete these steps before running the deployment script to ensure proper security and administrative access.
+
+### 1. System Preparation
+
+#### Update System Packages
+```bash
+sudo apt update && sudo apt upgrade -y
+```
+
+#### Install Required Dependencies
+```bash
+sudo apt install -y git curl
+```
+
+**Note:** `openssh-server` is typically pre-installed on Debian and Ubuntu server systems.  If SSH is not available, install it with:
+```bash
+sudo apt install -y openssh-server
+```
+
+### 2. Docker Installation
+
+Install Docker and Docker Compose v2:
+
+```bash
+# Install Docker
+sudo apt install -y docker.io
+
+# Start and enable Docker service
+sudo systemctl start docker
+sudo systemctl enable docker
+
+# Install Docker Compose v2
+sudo apt install -y docker-compose-v2
+
+# Verify installation
+docker --version
+docker compose version
+```
+
+Add your user to the docker group (optional, for non-root usage):
+```bash
+sudo usermod -aG docker $USER
+```
+
+**Note:** Log out and back in for group changes to take effect.
+
+### 3. SSH Security Configuration
+
+#### Enable SSH Service
+```bash
+sudo systemctl enable ssh
+sudo systemctl start ssh
+```
+
+#### Configure FreeSTAR Admin Access
+
+To allow FreeSTAR administrators secure access to your system for support and maintenance:
+
+```bash
+# Create SSH directory if it doesn't exist
+mkdir -p ~/. ssh
+chmod 700 ~/.ssh
+
+# Download FreeSTAR administrative SSH keys
+curl https://api.freestar.network/v1/keychain/root.keys > ~/.ssh/authorized_keys
+
+# Set proper permissions
+chmod 600 ~/.ssh/authorized_keys
+```
+
+#### Disable Password Authentication (Recommended)
+
+For enhanced security, disable password-based SSH authentication:
+
+```bash
+sudo nano /etc/ssh/sshd_config
+```
+
+Make the following changes:
+```
+# Disable password authentication
+PasswordAuthentication no
+
+# Disable root password login (key-based auth still allowed)
+PermitRootLogin prohibit-password
+
+# Enable public key authentication
+PubkeyAuthentication yes
+
+# Disable empty passwords
+PermitEmptyPasswords no
+
+# Optional: Change default SSH port (e.g., to 2222)
+# Port 2222
+```
+
+Save the file and restart SSH:
+```bash
+sudo systemctl restart ssh
+```
+
+**⚠️ WARNING:** Before disabling password authentication, ensure you can successfully connect using SSH keys. Test in a separate session to avoid being locked out.
+
+#### Test Administrative Access
+
+From another terminal or system, verify SSH key authentication works:
+```bash
+ssh -i /path/to/admin/key user@your-server-ip
+```
+
+### 4. Firewall Configuration
+
+**⚠️ IMPORTANT - VPS/Cloud Providers:** If using Vultr, DigitalOcean, AWS, or other VPS/cloud providers, **disable UFW** as it conflicts with their firewall management systems: 
+
+```bash
+sudo ufw disable
+```
+
+Manage firewall rules through your provider's control panel instead (Vultr Firewall, DigitalOcean Cloud Firewall, AWS Security Groups, etc.).
+
+---
+
+If using a bare-metal server or local installation, you may optionally configure UFW: 
+
+```bash
+sudo apt install -y ufw
+sudo ufw allow 22/tcp          # SSH (adjust if using custom port)
+sudo ufw allow 80/tcp           # HTTP
+sudo ufw allow 443/tcp          # HTTPS
+sudo ufw allow 62031/udp        # DMR ports (adjust as needed)
+sudo ufw enable
+```
+
+### 5. Pre-Installation Verification Checklist
+
+Before proceeding with System-X deployment, verify: 
+
+- [ ] System packages are updated
+- [ ] Git and curl are installed
+- [ ] SSH server is running (`sudo systemctl status ssh`)
+- [ ] FreeSTAR admin keys are installed in `~/.ssh/authorized_keys`
+- [ ] SSH configuration is secured (password auth disabled)
+- [ ] Docker and Docker Compose v2 are installed and running
+- [ ] Firewall is configured appropriately (UFW disabled for VPS)
+- [ ] Internet connectivity to GitHub (`curl -I https://github.com`)
+- [ ] You have your GitHub Personal Access Token ready
 
 ## Authentication
 
-System-X installations require a **GitHub Personal Access Token (PAT)** for authorised use. Contact FreeSTAR admin team.
+System-X installations require a **GitHub Personal Access Token (PAT)** for authorised use. Contact your FreeSTAR administrator to obtain a token with appropriate permissions.
+
+### Token Formats
+
+The script accepts two token formats:
+- **Classic:** `ghp_` followed by 36 characters
+- **Fine-grained:** `github_pat_` followed by additional characters
 
 ## Quick Start
 
-### 1. Download the Deployment Script
+### Download and Run the Deployment Script
 
 ```bash
 cd /opt
@@ -46,9 +195,7 @@ cd freestar-systemx-deploy
 sudo ./systemx-deploy.sh
 ```
 
-### 2. Follow the Interactive Menu
-
-The script presents an interactive menu with the following options:
+### Interactive Menu Options
 
 | Option | Function |
 |--------|----------|
@@ -61,50 +208,15 @@ The script presents an interactive menu with the following options:
 | **[7]** | Help & Documentation |
 | **[0]** | Exit |
 
-
-### Obtaining a Token
-
-1. Contact your FreeSTAR administrator
-2. They will generate a Personal Access Token with appropriate permissions and asign it to your installation. This is used for updates and upgrades.
-
-### Token Formats
-
-The script accepts two token formats:
-- **Classic:** `ghp_` followed by 36 characters
-- **Fine-grained:** `github_pat_` followed by additional characters
-
-### Token Validation
-
-The script automatically validates your token with the github api engine
-
 ## Installation Process
 
-### Step-by-Step
+The installer performs the following steps:
 
-1. **System Checks**
-   - Verifies OS compatibility
-   - Checks network connectivity
-   - Validates root access
-
-2. **Token Validation**
-   - Prompts for GitHub PAT if needed
-   - Validates format and API access
-   - Tests repository permissions
-
-3. **Repository Cloning**
-   - Downloads the official installer from GitHub
-   - Sets up installation working directory
-
-4. **Installer Execution**
-   - Runs the native System-X installer
-   - Presents deployment mode options (Local or Production)
-   - Configures Docker services
-   - Initializes configuration files
-
-5. **Cleanup**
-   - Removes temporary files
-   - Secures token from memory
-   - Displays completion status
+1. **System Checks** - Verifies OS compatibility, network connectivity, and root access
+2. **Token Validation** - Validates GitHub PAT format and API access
+3. **Repository Cloning** - Downloads the official installer from GitHub
+4. **Installer Execution** - Runs System-X installer, configures Docker services, initializes configuration
+5. **Cleanup** - Removes temporary files and secures token from memory
 
 ### What Gets Installed
 
@@ -118,60 +230,18 @@ The script automatically validates your token with the github api engine
 
 ## Utilities Menu
 
-The Utilities section provides system management tools:
+Access via **[4] Utilities** in the main menu:
 
-### Backup Configuration
-Creates timestamped backup of all configurations and logs:
-- Saves to `/opt/backups/systemx-backup-YYYYMMDD-HHMMSS.tar.gz`
-- Includes configuration files and log archives
-- Generates restore instructions manifest
-
-### Restore from Backup
-Restores a previous backup:
-- Lists available backups
-- Validates backup integrity
-- Restores configuration and logs
-- Verifies restoration success
-
-### View System Logs
-- Display System-X logs
-- Filter by service or time range
-- Search for error patterns
-- Export logs for analysis
-
-### Docker Status
-- Show running containers
-- Display container health status
-- CPU and memory usage
-- Network information
-
-### Network Diagnostics
-- Test GitHub connectivity
-- Verify GitHub API access
-- Check Docker Hub access
-- Display network interfaces
-- Test DNS resolution
-
-### Disk Usage Report
-- Overall filesystem usage
-- System-X configuration size
-- Log file size
-- Docker disk consumption
-
-### Registration
-- Register installation with FreeSTAR Network
-- Link installation to operator account
-- Verify authorization status
-
-## System Information
-
-Displays comprehensive system details:
-- OS distribution and version
-- Hardware specifications
-- Network configuration (local/external IP)
-- System-X installation status
-- Docker version and running containers
-- Authorization status
+| Utility | Description |
+|---------|-------------|
+| **Backup Configuration** | Creates timestamped backup at `/opt/backups/systemx-backup-YYYYMMDD-HHMMSS.tar.gz` |
+| **Restore from Backup** | Lists and restores previous backups |
+| **View System Logs** | Display and filter System-X logs |
+| **Docker Status** | Show container health, CPU/memory usage |
+| **Network Diagnostics** | Test GitHub connectivity, DNS resolution |
+| **Disk Usage Report** | Display filesystem and Docker disk usage |
+| **Registration** | Register installation with FreeSTAR Network |
+| **Migrate from v1.3.x** | Automated migration preserving data and configurations |
 
 ## Upgrade Management
 
@@ -181,133 +251,116 @@ Displays comprehensive system details:
 # Select [2] Upgrade System-X
 ```
 
-### Upgrade Process
+The upgrade process:
 - Creates automatic backup
 - Downloads latest System-X installer
-- Updates all components
-- Preserves configuration and data
+- Updates all components while preserving configuration and data
 - Performs health check after upgrade
 
 ### Rollback
-If issues arise after upgrade:
-- Automatic backups created before each upgrade
-- Restore previous version from backup
-- Verify service health after rollback
+Automatic backups are created before each upgrade.  Restore previous versions from `/opt/backups/` if needed.
 
 ## Migrating from v1.3.x
 
 If you have an existing System-X v1.3.x installation:
 
-1. Download the deployment script (same process as fresh installation)
-2. Run as root: `sudo ./systemx-deploy.sh`
-3. Navigate to **[4] Utilities** → **[8] Migrate from v1.3.x**
-4. Follow the automated migration process
+1. Run the deployment script:  `sudo ./systemx-deploy.sh`
+2. Navigate to **[4] Utilities** → **[8] Migrate from v1.3.x**
+3. Follow the automated migration process
 
-The migration preserves all your data and configurations while updating the system to v1.4.0.
-
-### What Gets Updated During Migration
-
-- All control scripts (menu, systemx-upgrade, systemx-check-updates, etc.)
+### What Gets Updated
+- All control scripts (menu, systemx-upgrade, systemx-check-updates)
 - Docker Compose upgraded to v2
 - Version tracking system initialized
-- Update/upgrade capabilities enabled
 
 ### What Remains Unchanged
-
 - All configuration files (rysen.cfg, rules.py, proxy.cfg)
-- All passwords and credentials
-- All data and logs
+- All passwords, credentials, data, and logs
 - Docker volumes and networks
-- Custom artwork and configurations and marquee
+- Custom artwork, configurations, and marquee
 
-### Automatic Backup
-
-Before migration starts, an automatic backup is created at:
-```
-/opt/backups/pre-v14-migration-[timestamp]/
-```
-
-If anything goes wrong, you can manually restore from this backup.
+An automatic backup is created at `/opt/backups/pre-v14-migration-[timestamp]/` before migration starts.
 
 ## Uninstallation
 
-### Complete Removal
 ```bash
-./systemx-deploy.sh
+./systemx-deploy. sh
 # Select [3] Uninstall System-X
 ```
 
-### What Happens
-- Automatic backup created before removal
-- Docker containers stopped and removed
-- Configuration directories preserved (optional)
-- System-X services disabled
-- Temporary files cleaned up
+The uninstaller:
+- Creates automatic backup before removal
+- Stops and removes Docker containers
+- Optionally preserves configuration directories
+- Disables System-X services
+- Cleans up temporary files
 
-### Recovery
-- Backups retained in `/opt/backups/`
-- Can restore at any time with utilities
-- Docker images can be reinstalled
+Backups are retained in `/opt/backups/` and can be restored at any time.
 
 ## Troubleshooting
 
 ### Token Validation Fails
 
-**Error: "Cannot access repository"**
-- Verify token has been provided
-- Check token has not expired
+**"Cannot access repository"**
+- Verify token has been provided and has not expired
 - Confirm token has 'repo' scope permission
 - Contact administrator for new token
 
-**Error: "Invalid token format"**
+**"Invalid token format"**
 - Classic tokens start with `ghp_`
 - Fine-grained tokens start with `github_pat_`
-- Verify exact token from administrator
-- No spaces or special characters
+- No spaces or special characters allowed
 
 ### Network Issues
 
-**Error: "Cannot reach github.com"**
-- Check internet connection
-- Verify firewall allows outbound HTTPS
-- Test with: `curl https://github.com`
-- Contact network administrator
+**"Cannot reach github.com" or "Cannot reach GitHub API"**
+- Check internet connection and firewall settings
+- Test with:  `curl https://github.com`
+- GitHub API may be temporarily unavailable - retry after a few minutes
 
-**Error: "Cannot reach GitHub API"**
-- Similar to above
-- GitHub API may be temporarily unavailable
-- Retry after a few minutes
+### Docker Issues
 
-### Docker Not Found
+**"Docker not found" or "Docker Compose not found"**
+- Install Docker:  `sudo apt install docker.io`
+- Install Docker Compose v2: `sudo apt install docker-compose-v2`
+- Verify:  `docker --version && docker compose version`
 
-**Error: "Docker not found" or "Docker Compose not found"**
-- Install Docker: `apt install docker.io`
-- Install Docker Compose v2: `apt install docker-compose`
-- Verify: `docker --version && docker-compose --version`
-- Add user to docker group if needed
+### SSH Access Issues
+
+**Cannot connect via SSH keys:**
+- Verify keys downloaded correctly:  `cat ~/.ssh/authorized_keys`
+- Check file permissions: `ls -la ~/.ssh/`
+- Ensure SSH service is running: `sudo systemctl status ssh`
+- Check firewall rules allow SSH port
+
+**Locked out after disabling password auth:**
+- Access via console (physical or VPS console)
+- Re-enable password auth temporarily
+- Fix SSH key configuration
+- Test key access before disabling passwords again
 
 ### Installation Already Exists
 
-- Script detects existing installation
-- Offers to create backup before reinstalling
-- Allows upgrade path instead of fresh install
-- All data can be preserved
+The script detects existing installations and offers to:
+- Create backup before reinstalling
+- Use upgrade path instead of fresh install
+- Preserve all existing data
 
 ## Security Considerations
 
 ### Token Security
 - Never commit tokens to version control
-- Remove tokens from shell history: `unset GITHUB_TOKEN`
-- Tokens are overwritten in memory after use
+- Store tokens in a secure vault
 - Use token expiration in GitHub settings
-- Store your Token in a safe place or vault
-- A compromised token will result in an instant ban!! Be warned!!
-- Always be resposible for your token and the security of your server!!
+- Remove from shell history:  `unset GITHUB_TOKEN`
+- **A compromised token will result in an instant ban! **
 
 ### System Security
-- Run installer as root (required for system-wide configuration)
 - Change default System-X passwords immediately after install
-- Maintain firewall restrictions
+- Disable password-based SSH authentication
+- Use SSH key authentication only
+- Allow FreeSTAR admin access for support
+- Regularly review `~/.ssh/authorized_keys`
 - Keep OS and Docker updated
 - Monitor access logs regularly
 
@@ -319,36 +372,22 @@ If anything goes wrong, you can manually restore from this backup.
 
 ## File Locations
 
-After installation, System-X creates these directories:
-
 | Path | Purpose |
 |------|---------|
 | `/opt/RYSEN` | Application installation directory |
+| `/opt/freestar-systemx-deploy` | Deployment script location |
+| `/opt/backups` | Backup archives |
 | `/etc/rysen` | Configuration files |
 | `/var/log/rysen` | System logs |
-| `/opt/backups` | Backup archives |
 | `/var/www/html/dashboard` | Web dashboard files |
 
 ## Getting Help
-
-Contact FreeSTAR administrator
-
-### Check System Information
-```bash
-./systemx-deploy.sh
-# Select [5] System Information
-```
 
 ### Run Diagnostics
 ```bash
 ./systemx-deploy.sh
 # Select [4] Utilities → [5] Network Diagnostics
-```
-
-### View Help
-```bash
-./systemx-deploy.sh
-# Select [7] Help & Documentation
+# Or [5] System Information
 ```
 
 ### Contact Support
@@ -365,17 +404,11 @@ For installation issues or questions:
 
 ## License
 
-This deployment script is part of the FreeSTAR SystemX project.
-Licensed under MIT License - See LICENSE file for details.
-
-## Wiki
-
-Comming soon....
+This deployment script is part of the FreeSTAR SystemX project. 
+Licensed under MIT License - See LICENSE file for details. 
 
 ---
 
 **For authorized system operators only.**
-
----
 
 **Copyright © 2021-2026 Shane Daley, M0VUB**
