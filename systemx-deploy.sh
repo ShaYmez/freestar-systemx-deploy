@@ -343,23 +343,52 @@ upgrade_systemx() {
         return
     fi
     
-    # Check if systemx-upgrade command exists
-    if [ ! -x /usr/local/sbin/systemx-upgrade ]; then
-        print_error "Upgrade command not found"
-        print_error "Your installation may be incomplete or from an older version"
+    print_info "This will clone the latest repository and run upgrade"
+    echo ""
+    read -p "Continue? (y/n): " confirm
+    if [[ ! $confirm =~ ^[Yy]$ ]]; then
+        print_info "Upgrade cancelled"
         press_enter
         return
     fi
     
-    print_info "Starting System-X upgrade process..."
+    # Clone fresh repository
+    print_info "Cloning latest System-X repository..."
+    mkdir -p "$WORK_DIR"
+    cd "$WORK_DIR"
+    
+    if ! git clone "https://${GITHUB_TOKEN}@github.com/${REPO_OWNER}/${REPO_NAME}.git" systemx-upgrade 2>/dev/null; then
+        print_error "Failed to clone repository"
+        press_enter
+        return
+    fi
+    
+    # Set trap to ensure cleanup on interruption (SECURITY: Always destroy cloned private repo)
+    trap 'cd / 2>/dev/null; rm -rf "$WORK_DIR" 2>/dev/null || true' RETURN
+    
+    cd systemx-upgrade
+    print_success "Repository cloned"
+    
+    # Run upgrade from repository (not installed version)
+    print_info "Running upgrade from repository..."
     echo ""
     
-    # Run the upgrade command
-    /usr/local/sbin/systemx-upgrade
+    if [ -f configs/sbin/systemx-upgrade ]; then
+        bash configs/sbin/systemx-upgrade || true  # Continue to cleanup even if upgrade fails
+    else
+        print_error "Upgrade script not found in repository"
+        cd /
+        rm -rf "$WORK_DIR"
+        press_enter
+        return
+    fi
+    
+    # Cleanup (trap will also ensure this happens)
+    cd /
+    rm -rf "$WORK_DIR"
     
     echo ""
-    print_success "Upgrade process completed"
-    
+    print_success "Upgrade completed"
     press_enter
 }
 
@@ -392,6 +421,137 @@ uninstall_systemx() {
 }
 
 ################################################################################
+# Repair Functions
+################################################################################
+
+repair_systemx() {
+    print_header "System-X Repair"
+    
+    # Check if System-X is installed
+    if [ ! -d "$CONFIG_DIR" ]; then
+        print_error "System-X is not installed"
+        print_info "Use option [1] to install System-X first"
+        press_enter
+        return
+    fi
+    
+    print_info "This will:"
+    echo "  - Clone latest System-X repository"
+    echo "  - Reinstall all control scripts"
+    echo "  - Fix file permissions"
+    echo "  - Repair database and services"
+    echo ""
+    read -p "Continue? (y/n): " confirm
+    if [[ ! $confirm =~ ^[Yy]$ ]]; then
+        print_info "Repair cancelled"
+        press_enter
+        return
+    fi
+    
+    # Clone fresh repository
+    print_info "Cloning latest System-X repository..."
+    mkdir -p "$WORK_DIR"
+    cd "$WORK_DIR"
+    
+    if ! git clone "https://${GITHUB_TOKEN}@github.com/${REPO_OWNER}/${REPO_NAME}.git" systemx-repair 2>/dev/null; then
+        print_error "Failed to clone repository"
+        press_enter
+        return
+    fi
+    
+    # Set trap to ensure cleanup on interruption (SECURITY: Always destroy cloned private repo)
+    trap 'cd / 2>/dev/null; rm -rf "$WORK_DIR" 2>/dev/null || true' RETURN
+    
+    cd systemx-repair
+    print_success "Repository cloned"
+    echo ""
+    
+    # Reinstall all control scripts
+    print_info "Reinstalling control scripts..."
+    
+    if [ -d configs/sbin ]; then
+        # Install shared library first
+        if [ -f configs/sbin/systemx-common ]; then
+            cp configs/sbin/systemx-common /usr/local/sbin/
+            chmod 755 /usr/local/sbin/systemx-common
+        fi
+        
+        # Install language system
+        if [ -f configs/sbin/systemx-lang-loader ]; then
+            mkdir -p /usr/local/sbin/systemx-lang
+            cp configs/sbin/systemx-lang-loader /usr/local/sbin/
+            chmod 755 /usr/local/sbin/systemx-lang-loader
+            cp configs/sbin/systemx-lang/*.lang /usr/local/sbin/systemx-lang/ 2>/dev/null || true
+            chmod 644 /usr/local/sbin/systemx-lang/*.lang 2>/dev/null || true
+        fi
+        
+        # Copy all systemx-* scripts
+        for script in configs/sbin/systemx-*; do
+            if [ -f "$script" ]; then
+                cp "$script" /usr/local/sbin/
+                chmod 755 "/usr/local/sbin/$(basename "$script")"
+            fi
+        done
+        
+        # Copy menu
+        if [ -f configs/sbin/systemx-menu ]; then
+            cp configs/sbin/systemx-menu /usr/local/sbin/menu
+            chmod 755 /usr/local/sbin/menu
+        fi
+        
+        # Create Spanish menu wrapper
+        cat > /usr/local/sbin/menu-spanish << 'EOFSPANISH'
+#!/bin/bash
+export SYSTEMX_LANG=es
+exec /usr/local/sbin/menu "$@"
+EOFSPANISH
+        chmod 755 /usr/local/sbin/menu-spanish
+        
+        # Set ownership
+        chown root:root /usr/local/sbin/menu 2>/dev/null || true
+        chown root:root /usr/local/sbin/menu-spanish 2>/dev/null || true
+        chown root:root /usr/local/sbin/systemx-* 2>/dev/null || true
+        
+        print_success "Scripts reinstalled"
+    else
+        print_error "Scripts directory not found in repository"
+        cd /
+        rm -rf "$WORK_DIR"
+        press_enter
+        return
+    fi
+    
+    # Now run systemx-repair (freshly installed)
+    print_info "Running system repair..."
+    echo ""
+    
+    if [ -x /usr/local/sbin/systemx-repair ]; then
+        /usr/local/sbin/systemx-repair fix-all || true  # Continue to cleanup even if repair fails
+    else
+        print_warning "systemx-repair not available, performing basic repairs..."
+        
+        # Basic Docker repair
+        print_info "Checking Docker services..."
+        systemctl start docker 2>/dev/null || true
+        
+        if [ -d "$CONFIG_DIR" ]; then
+            cd "$CONFIG_DIR"
+            docker compose up -d 2>/dev/null || true
+        fi
+        
+        print_success "Basic repair completed"
+    fi
+    
+    # Cleanup (trap will also ensure this happens)
+    cd /
+    rm -rf "$WORK_DIR"
+    
+    echo ""
+    print_success "Repair completed"
+    press_enter
+}
+
+################################################################################
 # Utilities
 ################################################################################
 
@@ -407,9 +567,10 @@ utilities_menu() {
         echo "6) Disk Usage Report"
         echo "7) Register Installation"
         echo "8) Migrate from v1.3.x"
-        echo "9) Back to Main Menu"
+        echo "9) Repair Broken System"
+        echo "10) Back to Main Menu"
         echo ""
-        read -p "Select option [1-9]: " choice
+        read -p "Select option [1-10]: " choice
         
         case $choice in
             1)
@@ -437,6 +598,9 @@ utilities_menu() {
                 migrate_from_v13
                 ;;
             9)
+                repair_systemx
+                ;;
+            10)
                 return
                 ;;
             *)
