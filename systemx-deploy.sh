@@ -75,6 +75,18 @@ press_enter() {
     read -p "Press Enter to continue..."
 }
 
+# Sanitize token from error messages
+sanitize_token() {
+    local text="$1"
+    # Try perl first for exact match, fallback to sed pattern matching
+    if command -v perl >/dev/null 2>&1 && [ -n "$GITHUB_TOKEN" ]; then
+        echo "$text" | perl -pe 's/\Q'"$GITHUB_TOKEN"'\E/***TOKEN***/g' 2>/dev/null
+    else
+        # Fallback: sanitize common token patterns
+        echo "$text" | sed 's/ghp_[A-Za-z0-9]\{36\}/***TOKEN***/g; s/github_pat_[A-Za-z0-9_]\{82\}/***TOKEN***/g'
+    fi
+}
+
 ################################################################################
 # System Checks
 ################################################################################
@@ -288,15 +300,23 @@ install_systemx() {
     print_info "Cloning System-X repository..."
     
     if [ "$TOKEN_VALIDATED" = true ] && [ -n "$GITHUB_TOKEN" ]; then
-        # Use token for cloning
-        if ! git clone "https://${GITHUB_TOKEN}@github.com/${REPO_OWNER}/${REPO_NAME}.git" systemx-installer 2>/dev/null; then
+        # Use token for cloning (capture errors for debugging)
+        local GIT_ERROR=$(mktemp)
+        if ! git clone "https://${GITHUB_TOKEN}@github.com/${REPO_OWNER}/${REPO_NAME}.git" systemx-installer 2>"$GIT_ERROR"; then
             print_error "Failed to clone repository"
+            if [ -s "$GIT_ERROR" ]; then
+                local ERROR_MSG=$(head -n 1 "$GIT_ERROR")
+                local SANITIZED=$(sanitize_token "$ERROR_MSG")
+                print_warning "Error details: $SANITIZED"
+            fi
+            rm -f "$GIT_ERROR"
             press_enter
             return
         fi
+        rm -f "$GIT_ERROR"
     else
-        # Try public clone
-        if ! git clone "$REPO_URL" systemx-installer 2>/dev/null; then
+        # Try public clone - suppress verbose output, show only errors
+        if ! git clone "$REPO_URL" systemx-installer >/dev/null 2>&1; then
             print_error "Failed to clone repository"
             print_info "Repository may require authentication"
             press_enter
@@ -357,11 +377,17 @@ upgrade_systemx() {
     mkdir -p "$WORK_DIR"
     cd "$WORK_DIR"
     
-    if ! git clone "https://${GITHUB_TOKEN}@github.com/${REPO_OWNER}/${REPO_NAME}.git" systemx-upgrade 2>/dev/null; then
+    local GIT_ERROR=$(mktemp)
+    if ! git clone "https://${GITHUB_TOKEN}@github.com/${REPO_OWNER}/${REPO_NAME}.git" systemx-upgrade 2>"$GIT_ERROR"; then
         print_error "Failed to clone repository"
+        if [ -s "$GIT_ERROR" ]; then
+            print_warning "Check network connection and token validity"
+        fi
+        rm -f "$GIT_ERROR"
         press_enter
         return
     fi
+    rm -f "$GIT_ERROR"
     
     # Set trap to ensure cleanup on interruption (SECURITY: Always destroy cloned private repo)
     trap 'cd / 2>/dev/null; rm -rf "$WORK_DIR" 2>/dev/null || true' RETURN
@@ -453,11 +479,17 @@ repair_systemx() {
     mkdir -p "$WORK_DIR"
     cd "$WORK_DIR"
     
-    if ! git clone "https://${GITHUB_TOKEN}@github.com/${REPO_OWNER}/${REPO_NAME}.git" systemx-repair 2>/dev/null; then
+    local GIT_ERROR=$(mktemp)
+    if ! git clone "https://${GITHUB_TOKEN}@github.com/${REPO_OWNER}/${REPO_NAME}.git" systemx-repair 2>"$GIT_ERROR"; then
         print_error "Failed to clone repository"
+        if [ -s "$GIT_ERROR" ]; then
+            print_warning "Check network connection and token validity"
+        fi
+        rm -f "$GIT_ERROR"
         press_enter
         return
     fi
+    rm -f "$GIT_ERROR"
     
     # Set trap to ensure cleanup on interruption (SECURITY: Always destroy cloned private repo)
     trap 'cd / 2>/dev/null; rm -rf "$WORK_DIR" 2>/dev/null || true' RETURN
@@ -526,7 +558,10 @@ EOFSPANISH
     echo ""
     
     if [ -x /usr/local/sbin/systemx-repair ]; then
+        # Tell repair where to find the repo we just cloned
+        export SYSTEMX_REPO_PATH="$WORK_DIR/systemx-repair"
         /usr/local/sbin/systemx-repair fix-all || true  # Continue to cleanup even if repair fails
+        unset SYSTEMX_REPO_PATH
     else
         print_warning "systemx-repair not available, performing basic repairs..."
         
@@ -750,13 +785,22 @@ restore_backup() {
     fi
     
     # Create selfcare log files with correct permissions
-    print_info "Setting up selfcare log files..."
+    print_info "Setting up log directory and selfcare log files..."
     mkdir -p /var/log/rysen
-    touch /var/log/rysen/security-audit.log
-    touch /var/log/rysen/login-attempts.log
+    
+    # Create UID 54000 user if it doesn't exist (matches container user)
+    if ! id -u 54000 > /dev/null 2>&1; then
+        useradd -u 54000 -r -s /bin/false -c "System-X container user" radio 2>/dev/null || true
+    fi
+    
+    # Monitor + SystemX containers (UID 54000) need write access to log directory
+    chown -R 54000:54000 /var/log/rysen
+    
+    # Selfcare logs need www-data ownership (written by dashboard PHP)
+    touch /var/log/rysen/security-audit.log /var/log/rysen/login-attempts.log
     chown www-data:www-data /var/log/rysen/security-audit.log /var/log/rysen/login-attempts.log
     chmod 644 /var/log/rysen/security-audit.log /var/log/rysen/login-attempts.log
-    print_success "Selfcare log files created"
+    print_success "Log directory and selfcare log files configured"
     
     print_info "Starting System-X services..."
     if [ -x /usr/local/sbin/systemx-start ]; then
@@ -1060,7 +1104,8 @@ EOF
     local temp_dir="/opt/tmp/systemx-migrate-$$"
     mkdir -p "$temp_dir"
     
-    if ! git clone "https://${GITHUB_TOKEN}@github.com/${REPO_OWNER}/${REPO_NAME}.git" "$temp_dir" 2>&1 | grep -v "Cloning into"; then
+    # Clone repository - suppress verbose output
+    if ! git clone "https://${GITHUB_TOKEN}@github.com/${REPO_OWNER}/${REPO_NAME}.git" "$temp_dir" >/dev/null 2>&1; then
         print_error "Failed to clone repository"
         print_info "Backup available at: $backup_path"
         rm -rf "$temp_dir"
