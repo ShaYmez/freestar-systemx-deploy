@@ -1236,6 +1236,30 @@ EOFSPANISH
         chown root:root /usr/local/sbin/systemx-token-broadcaster
         print_success "Broadcaster installed"
         
+        # Create/update broadcaster configuration file
+        print_info "Creating broadcaster configuration..."
+        BROADCASTER_CFG="/etc/rysen/systemx-broadcaster.cfg"
+        
+        # Detect hostname from domain_name file or use hostname command
+        if [ -f "/etc/rysen/.domain_name" ]; then
+            BROADCASTER_HOSTNAME=$(cat /etc/rysen/.domain_name)
+        else
+            BROADCASTER_HOSTNAME=$(hostname)
+        fi
+        
+        cat > "$BROADCASTER_CFG" << EOF
+# System-X Token Broadcaster Configuration
+# Auto-generated during deployment/upgrade
+# Note: API_SECRET is a shared public identifier for the FreeSTAR network API
+HOSTNAME="$BROADCASTER_HOSTNAME"
+API_SECRET="baee0ce5db13ae23f1c95cfafc4ac2c81b5206dbc328d7025db12b148d2b540f"
+API_URL="https://api.freestar.network/v1/update-server-status.php"
+EOF
+        
+        chmod 600 "$BROADCASTER_CFG"
+        chown root:root "$BROADCASTER_CFG"
+        print_success "Broadcaster config created: $BROADCASTER_CFG"
+        
         # Add cron job
         if ! crontab -l 2>/dev/null | grep -q "systemx-token-broadcaster"; then
             (crontab -l 2>/dev/null; echo "*/5 * * * * /usr/local/sbin/systemx-token-broadcaster >/dev/null 2>&1") | crontab -
@@ -1268,6 +1292,23 @@ EOFSPANISH
         print_success "Initial update check completed"
     else
         print_warning "Update checker not found in repository"
+    fi
+    
+    # Install Backup Cleanup Script
+    if [ -f "$temp_dir/cleanup-backups.sh" ]; then
+        print_info "Installing backup cleanup script..."
+        cp "$temp_dir/cleanup-backups.sh" /opt/cleanup-backups.sh
+        chmod 755 /opt/cleanup-backups.sh
+        chown root:root /opt/cleanup-backups.sh
+        print_success "Cleanup script installed: /opt/cleanup-backups.sh"
+        
+        # Add cron job
+        if ! crontab -l 2>/dev/null | grep -q "cleanup-backups.sh"; then
+            (crontab -l 2>/dev/null; echo "0 2 * * * /opt/cleanup-backups.sh >/dev/null 2>&1") | crontab -
+            print_success "Cleanup cron job configured (daily at 2 AM)"
+        fi
+    else
+        print_warning "Cleanup script not found - backups may accumulate"
     fi
     
     echo ""
