@@ -5,17 +5,24 @@ All notable changes to the FreeSTAR System-X deployment documentation and toolin
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.4.1] - 2026-06-20
 
 ### Added
 - **Network configuration documentation** ([NETWORK_CONFIG.md](NETWORK_CONFIG.md)) — `systemx-network.ini` as single source of truth for API URLs, verified servers, and network identity
 - Post-install network configuration section in [README.md](README.md) and [DEPLOYMENT.md](DEPLOYMENT.md)
 
+### Changed
+- Deploy script uses shared network/broadcaster helpers from System-X-Installer
+- Upgrade failures no longer masked in deploy script
+- Version updated to 1.4.1
+
+## [Unreleased]
+
 ## [1.4.0] - 2026-01-15
 
 ### Added
 - **Public Deployment System**: New token-based deployment engine (`deployment/systemx-deploy.sh`) for secure remote updates
-- **Multilingual Support**: Complete language system with 11 languages (English, Spanish, Portuguese, German, Dutch, Italian, Portuguese, Chinese, Russian, Arabic, Japanese), menu driven with locale support.
+- **Multilingual Support**: Complete language system with 5 languages (English, Spanish, Italian, Portuguese, Chinese)
 - **Unified Control Scripts**: New `systemx-common` shared library consolidating all control script functionality
 - **Hierarchical Menu System**: Reorganized menu with service control, configuration, updates, and utilities submenus
 - **Configuration Editor**: New `systemx-config` tool for editing all configuration files
@@ -50,4 +57,4 @@ Legacy release. See commit history for details.
 
 ---
 
-**Full Changelog**: https://github.com/ShaYmez/System-X-Installer/compare/v1.3.9r3...v1.4.0
+**Full Changelog**: https://github.com/ShaYmez/System-X-Installer/compare/v1.4.0...v1.4.1

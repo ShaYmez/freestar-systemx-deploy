@@ -419,8 +419,8 @@ For installation issues or questions:
 
 ## Version Information
 
-- **Current Version:** 1.4.0
-- **Release Date:** January 15, 2026
+- **Current Version:** 1.4.1
+- **Release Date:** June 20, 2026
 - **Supported Installer:** System-X-Installer v1.4.0+
 
 ## License

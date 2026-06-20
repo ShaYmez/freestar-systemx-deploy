@@ -1,6 +1,6 @@
 #!/bin/bash
 # SYSTEM-X PUBLIC DEPLOYMENT SCRIPT
-# Version 1.4.0 (15012026)
+# Version 1.4.1 (20062026)
 # Standalone deployment script for System-X installation management
 # Copyright (C) 2021-2026 Shane Daley, M0VUB <shane@freestar.network>
 
@@ -400,7 +400,13 @@ upgrade_systemx() {
     echo ""
     
     if [ -f configs/sbin/systemx-upgrade ]; then
-        bash configs/sbin/systemx-upgrade || true  # Continue to cleanup even if upgrade fails
+        if ! bash configs/sbin/systemx-upgrade; then
+            print_error "Upgrade script failed"
+            cd /
+            rm -rf "$WORK_DIR"
+            press_enter
+            return
+        fi
     else
         print_error "Upgrade script not found in repository"
         cd /
@@ -1235,30 +1241,23 @@ EOFSPANISH
         chmod 755 /usr/local/sbin/systemx-token-broadcaster
         chown root:root /usr/local/sbin/systemx-token-broadcaster
         print_success "Broadcaster installed"
-        
-        # Create/update broadcaster configuration file
-        print_info "Creating broadcaster configuration..."
-        BROADCASTER_CFG="/etc/rysen/systemx-broadcaster.cfg"
-        
-        # Detect hostname from domain_name file or use hostname command
-        if [ -f "/etc/rysen/.domain_name" ]; then
-            BROADCASTER_HOSTNAME=$(cat /etc/rysen/.domain_name)
-        else
-            BROADCASTER_HOSTNAME=$(hostname)
+
+        # Seed network INI if missing, then update broadcaster from INI
+        if [ -f "$temp_dir/configs/systemx-network.ini" ] && [ -f "$temp_dir/configs/sbin/systemx-common" ]; then
+            print_info "Checking network configuration..."
+            bash -c "source '$temp_dir/configs/sbin/systemx-common' && seed_network_config '$temp_dir/configs/systemx-network.ini'"
         fi
-        
-        cat > "$BROADCASTER_CFG" << EOF
-# System-X Token Broadcaster Configuration
-# Auto-generated during deployment/upgrade
-# Note: API_SECRET is a shared public identifier for the FreeSTAR network API
-HOSTNAME="$BROADCASTER_HOSTNAME"
-API_SECRET="baee0ce5db13ae23f1c95cfafc4ac2c81b5206dbc328d7025db12b148d2b540f"
-API_URL="https://api.freestar.network/v1/update-server-status.php"
-EOF
-        
-        chmod 600 "$BROADCASTER_CFG"
-        chown root:root "$BROADCASTER_CFG"
-        print_success "Broadcaster config created: $BROADCASTER_CFG"
+
+        print_info "Creating broadcaster configuration..."
+        if [ -f "$temp_dir/configs/sbin/systemx-common" ]; then
+            if bash -c "source '$temp_dir/configs/sbin/systemx-common' && update_broadcaster_config"; then
+                print_success "Broadcaster config created: /etc/rysen/systemx-broadcaster.cfg"
+            else
+                print_warning "Broadcaster configuration update failed"
+            fi
+        else
+            print_warning "systemx-common not found; broadcaster config not updated"
+        fi
         
         # Add cron job
         if ! crontab -l 2>/dev/null | grep -q "systemx-token-broadcaster"; then
@@ -1337,7 +1336,7 @@ EOF
     print_info "Creating version tracking..."
     local new_version=$(cd "$temp_dir" && git rev-parse HEAD 2>/dev/null | cut -c1-7)
     if [ -z "$new_version" ]; then
-        new_version="1.4.0"
+        new_version="1.4.1"
     fi
     
     echo "$new_version" > /etc/rysen/.installer_version
@@ -1633,7 +1632,7 @@ show_banner() {
 ║   ╚══════╝   ╚═╝   ╚══════╝   ╚═╝   ╚══════╝╚═╝     ╚═╝    ╚═╝  ╚═╝   ║
 ║                                                                       ║
 ║                     DEPLOYMENT & MANAGEMENT SYSTEM                    ║
-║                             Version 1.4.0                             ║
+║                             Version 1.4.1                             ║
 ║                                 RYSEN                                 ║
 ╚═══════════════════════════════════════════════════════════════════════╝
 EOF
