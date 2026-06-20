@@ -1,9 +1,15 @@
 # Changelog
 
-All notable changes to System-X Installer will be documented in this file.
+All notable changes to the FreeSTAR System-X deployment documentation and tooling will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased]
+
+### Added
+- **Network configuration documentation** ([NETWORK_CONFIG.md](NETWORK_CONFIG.md)) — `systemx-network.ini` as single source of truth for API URLs, verified servers, and network identity
+- Post-install network configuration section in [README.md](README.md) and [DEPLOYMENT.md](DEPLOYMENT.md)
 
 ## [1.4.0] - 2026-01-15
 

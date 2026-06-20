@@ -196,9 +196,40 @@ Once authorized, you'll receive:
 
 ## Documentation
 
-- **[DEPLOYMENT.md - Complete Installation Guide](DEPLOYMENT.md)** - Pre-installation setup, security configuration, Docker installation, step-by-step deployment, utilities, troubleshooting, and migration guide
-- **[Wiki](#)** - Coming soon - comprehensive guides and documentation
-- **[Changelog](#)** - Coming soon - release notes and version history
+| Document | Description |
+|----------|-------------|
+| [DEPLOYMENT.md](DEPLOYMENT.md) | Complete installation, upgrade, and operations guide |
+| [NETWORK_CONFIG.md](NETWORK_CONFIG.md) | Network/API configuration (`systemx-network.ini`) |
+| [CHANGELOG.md](CHANGELOG.md) | Release notes |
+
+## Post-Installation
+
+### Network & API configuration
+
+System-X stores network identity and central API URLs in **`/etc/rysen/systemx-network.ini`**.
+
+- **FreeSTAR default installs:** no changes required — file is created automatically with FreeSTAR endpoints.
+- **Coordinated regional APIs:** edit the INI after approval from the FreeSTAR team.
+- **Dashboard branding** (logos, social links) stays in `/var/www/html/dashboard/config/` and must follow authorization criteria above.
+
+**Full guide:** [NETWORK_CONFIG.md](NETWORK_CONFIG.md)  
+**Install & upgrade walkthrough:** [DEPLOYMENT.md](DEPLOYMENT.md)
+
+### Token status reporting
+
+System-X automatically reports token verification status to the central API every 5 minutes. No manual configuration is required after installation.
+
+To manually trigger a status report:
+
+```bash
+sudo /usr/local/sbin/systemx-token-broadcaster
+```
+
+To verify the cron job:
+
+```bash
+crontab -l | grep systemx-token-broadcaster
+```
 
 ## Support
 

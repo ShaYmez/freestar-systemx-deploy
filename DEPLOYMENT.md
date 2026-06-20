@@ -248,11 +248,59 @@ If you have an existing System-X v1.3.x installation:
 
 ### What Remains Unchanged
 - All configuration files (rysen.cfg, rules.py, proxy.cfg)
+- `systemx-network.ini` (seeded with FreeSTAR defaults if missing)
 - All passwords, credentials, data, and logs
 - Docker volumes and networks
 - Custom artwork, configurations, and marquee
+- Dashboard config, homepage, and preserved web assets (`index.html`, `images/`, `dashboard/img/`)
 
 An automatic backup is created at `/opt/backups/pre-v14-migration-[timestamp]/` before migration starts.
+
+## Network & API Configuration
+
+System-X stores **network identity and API URLs** in one file:
+
+```
+/etc/rysen/systemx-network.ini
+```
+
+This controls:
+
+- Dashboard Info pages (Talkgroups, Bridges, Verified Servers)
+- JSON data refresh during upgrades
+- Token status / verified-server reporting
+
+**FreeSTAR default operators:** no changes needed.
+
+**Regional or coordinated API setups:** edit the INI after coordinating with the FreeSTAR team.
+
+**Full guide:** [NETWORK_CONFIG.md](NETWORK_CONFIG.md)
+
+### Quick edit
+
+```bash
+sudo nano /etc/rysen/systemx-network.ini
+```
+
+### Presentation vs network settings
+
+| Purpose | Location |
+|---------|----------|
+| API URLs, network name, verified-server API | `/etc/rysen/systemx-network.ini` |
+| Logos, social links, marquee, footer | `/var/www/html/dashboard/config/` |
+| Homepage layout and tile images | `/var/www/html/index.html`, `images/` |
+
+Do **not** remove FreeSTAR branding without explicit approval (see [README.md](README.md)).
+
+### Upgrade safety
+
+A single upgrade:
+
+- Seeds `systemx-network.ini` if missing (FreeSTAR defaults)
+- Preserves existing INI, dashboard config, and custom web assets
+- Refreshes JSON files only when stale (>7 days) or missing
+
+See [NETWORK_CONFIG.md](NETWORK_CONFIG.md#upgrade-behaviour) for preservation details.
 
 ## Uninstallation
 
@@ -350,7 +398,7 @@ The script detects existing installations and offers to:
 | `/opt/RYSEN` | Application installation directory |
 | `/opt/freestar-systemx-deploy` | Deployment script location |
 | `/opt/backups` | Backup archives |
-| `/etc/rysen` | Configuration files |
+| `/etc/rysen` | Configuration files (including `systemx-network.ini`) |
 | `/var/log/rysen` | System logs |
 | `/var/www/html/dashboard` | Web dashboard files |
 
