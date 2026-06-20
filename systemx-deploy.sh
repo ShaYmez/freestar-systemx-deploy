@@ -513,6 +513,11 @@ repair_systemx() {
             cp configs/sbin/systemx-common /usr/local/sbin/
             chmod 755 /usr/local/sbin/systemx-common
         fi
+
+        if [ -f configs/sbin/systemx-upgrade-lib.sh ]; then
+            cp configs/sbin/systemx-upgrade-lib.sh /usr/local/sbin/systemx-upgrade-lib.sh
+            chmod 755 /usr/local/sbin/systemx-upgrade-lib.sh
+        fi
         
         # Install language system
         if [ -f configs/sbin/systemx-lang-loader ]; then
@@ -1171,6 +1176,11 @@ EOF
         # Install shared library
         cp "$temp_dir/configs/sbin/systemx-common" /usr/local/sbin/
         chmod 755 /usr/local/sbin/systemx-common
+
+        if [ -f "$temp_dir/configs/sbin/systemx-upgrade-lib.sh" ]; then
+            cp "$temp_dir/configs/sbin/systemx-upgrade-lib.sh" /usr/local/sbin/systemx-upgrade-lib.sh
+            chmod 755 /usr/local/sbin/systemx-upgrade-lib.sh
+        fi
         
         # Install language system
         mkdir -p /usr/local/sbin/systemx-lang
@@ -1243,13 +1253,23 @@ EOFSPANISH
         print_success "Broadcaster installed"
 
         # Seed network INI if missing, then update broadcaster from INI
-        if [ -f "$temp_dir/configs/systemx-network.ini" ] && [ -f "$temp_dir/configs/sbin/systemx-common" ]; then
+        if [ -f "$temp_dir/configs/systemx-network.ini" ] && [ -f "$temp_dir/configs/sbin/systemx-upgrade-lib.sh" ]; then
+            cp "$temp_dir/configs/sbin/systemx-upgrade-lib.sh" /usr/local/sbin/systemx-upgrade-lib.sh
+            chmod 755 /usr/local/sbin/systemx-upgrade-lib.sh
+            # shellcheck source=/dev/null
+            source /usr/local/sbin/systemx-upgrade-lib.sh
             print_info "Checking network configuration..."
-            bash -c "source '$temp_dir/configs/sbin/systemx-common' && seed_network_config '$temp_dir/configs/systemx-network.ini'"
+            run_upgrade_common "$temp_dir" seed_network_config "$temp_dir/configs/systemx-network.ini"
         fi
 
         print_info "Creating broadcaster configuration..."
-        if [ -f "$temp_dir/configs/sbin/systemx-common" ]; then
+        if declare -f run_upgrade_common >/dev/null 2>&1; then
+            if run_upgrade_common "$temp_dir" update_broadcaster_config; then
+                print_success "Broadcaster config created: /etc/rysen/systemx-broadcaster.cfg"
+            else
+                print_warning "Broadcaster configuration update failed"
+            fi
+        elif [ -f "$temp_dir/configs/sbin/systemx-common" ]; then
             if bash -c "source '$temp_dir/configs/sbin/systemx-common' && update_broadcaster_config"; then
                 print_success "Broadcaster config created: /etc/rysen/systemx-broadcaster.cfg"
             else
