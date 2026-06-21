@@ -399,25 +399,25 @@ upgrade_systemx() {
     print_info "Running upgrade from repository..."
     echo ""
     
+    local upgrade_failed=0
     if [ -f configs/sbin/systemx-upgrade ]; then
         if ! bash configs/sbin/systemx-upgrade; then
+            upgrade_failed=1
             print_error "Upgrade script failed"
-            cd /
-            rm -rf "$WORK_DIR"
-            press_enter
-            return
         fi
     else
         print_error "Upgrade script not found in repository"
-        cd /
-        rm -rf "$WORK_DIR"
-        press_enter
-        return
+        upgrade_failed=1
     fi
     
     # Cleanup (trap will also ensure this happens)
     cd /
     rm -rf "$WORK_DIR"
+    
+    if [ "$upgrade_failed" -eq 1 ]; then
+        press_enter
+        return
+    fi
     
     echo ""
     print_success "Upgrade completed"
