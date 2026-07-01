@@ -17,6 +17,27 @@ Upstream detail: [RYSEN-MONITOR doc/ipsc-selfcare-roadmap.md](https://github.com
 | Admin CLI | `sudo selfcare-admin` |
 | Enable IPSC | `rysen.cfg` → `[IPSC] ENABLED: True` + `[SELF SERVICE] ENABLED: True` |
 | DB row type | `Clients.mode = 0` |
+| Default repeater capacity | **50** concurrent IPSC masters (`GENERATOR: 50`, backend UDP **56003–56052**) |
+
+---
+
+## Capacity and scaling
+
+Fresh installs ship with **50** IPSC repeater slots — enough for typical networks until demand grows. RYSEN and `ipsc-proxy` can support up to **200**; only raise the limit when you need more than 50 repeaters on one master.
+
+| Setting | File | Default (50 slots) | Max (200 slots) |
+|---------|------|-------------------|-----------------|
+| `GENERATOR` | `/etc/rysen/rysen.cfg` → `[IPSC]` | `50` | `200` |
+| `DESTPORTSTART` | `/etc/rysen/ipsc-proxy.cfg` | `56003` | `56003` (unchanged) |
+| `DESTPORTEND` | `/etc/rysen/ipsc-proxy.cfg` | `56052` | `56202` |
+
+**Rule:** `DESTPORTEND` = `DESTPORTSTART` + `GENERATOR` − 1 (both files must agree).
+
+After changing either file, restart the stack: `systemx-restart`.
+
+**Upgrades:** additive config merge adds missing keys only — it does **not** overwrite live `GENERATOR` or `DESTPORTEND`. Servers that merged an older template may still have higher limits until you edit them manually.
+
+Only **UDP 56002** is exposed on the host firewall. Ports 56003+ are internal traffic between `ipsc-proxy` and the RYSEN container on the Docker network.
 
 ---
 
