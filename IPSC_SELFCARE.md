@@ -80,8 +80,27 @@ Uses PBKDF2-SHA256 (`salt=RYSEN`, 2000 rounds) — same hash as PHP selfcare.
 | Symptom | Check |
 |---------|-------|
 | Repeater won't connect | Firewall UDP 56002; `docker logs ipsc-proxy`; `MASTER` in `ipsc-proxy.cfg` = 172.16.238.10 |
+| `ipsc-proxy.cfg` is a directory | Docker created a folder because the container started before the file existed — see below |
 | No IPSC row in dashboard | RYSEN ipsc build running; repeater registered on master |
 | TS2 change has no effect | `[SELF SERVICE] ENABLED: True`; RYSEN logs; MariaDB `Clients.modified=1` |
 | Hotspot broken after IPSC | Pull latest `rysen-sp-selfcare` (mode > 0 filter) |
 
 See [RELEASE_1.5.0_ROADMAP.md](RELEASE_1.5.0_ROADMAP.md) for the full validation matrix.
+
+### `ipsc-proxy.cfg` is a directory
+
+Docker creates a **directory** at the mount path when a container starts with a file bind-mount but the host file does not exist yet. Upgrades from 1.5.0 may hit this if `ipsc-proxy` started before the template was merged.
+
+**Fix on the server:**
+
+```bash
+sudo systemctl stop ipsc-proxy 2>/dev/null || true
+cd /etc/rysen && docker compose stop ipsc-proxy 2>/dev/null || true
+sudo rm -rf /etc/rysen/ipsc-proxy.cfg
+sudo cp /path/to/installer/configs/ipsc-proxy.cfg /etc/rysen/ipsc-proxy.cfg
+# Or re-run systemx-upgrade (1.5.0+ repairs directory → file automatically)
+sudo chmod 600 /etc/rysen/ipsc-proxy.cfg
+cd /etc/rysen && docker compose up -d ipsc-proxy
+```
+
+Verify: `test -f /etc/rysen/ipsc-proxy.cfg && echo OK`
