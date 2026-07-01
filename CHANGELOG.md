@@ -5,6 +5,16 @@ All notable changes to the FreeSTAR System-X deployment documentation and toolin
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.0] - 2026-07-01
+
+### Added
+- **Motorola IPSC operator guides** — [IPSC_SELFCARE.md](IPSC_SELFCARE.md), [RELEASE_1.5.0_ROADMAP.md](RELEASE_1.5.0_ROADMAP.md)
+- IPSC section in [DEPLOYMENT.md](DEPLOYMENT.md) — `ipsc-proxy`, UDP 56002, enablement steps
+
+### Changed
+- Version updated to 1.5.0 (aligned with System-X-Installer 1.5.0)
+- Public sync now includes IPSC documentation files
+
 ## [1.4.1] - 2026-06-20
 
 ### Added

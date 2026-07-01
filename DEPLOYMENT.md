@@ -1,6 +1,6 @@
 # System-X Deployment Guide
 
-**Version 1.4.1+**
+**Version 1.5.0+**
 
 Complete installation and operations guide for authorized FreeSTAR System-X operators using [freestar-systemx-deploy](https://github.com/ShaYmez/freestar-systemx-deploy).
 
@@ -204,6 +204,48 @@ crontab -l | grep systemx-token-broadcaster      # Verify cron
 ### Default passwords
 
 Change default credentials immediately after install (documented in installer output).
+
+### Selfcare admin menu (optional)
+
+Fresh installs and upgrades deploy `/usr/local/sbin/selfcare-admin` (IPSC selfcare + overview). Run from the host:
+
+```bash
+sudo selfcare-admin
+```
+
+To reinstall manually from a checkout:
+
+```bash
+sudo ./configs/sbin/install-selfcare-admin.sh
+```
+
+Monitor backend changes still require `docker compose pull` and recreating the `monitor` container after upgrade — dashboard HTML alone is not enough.
+
+### Motorola IPSC repeaters (1.5.0+)
+
+System-X 1.5.0 adds IPSC repeater selfcare (static TS1/TS2) alongside MMDVM hotspot selfcare.
+
+| Component | Notes |
+|-----------|-------|
+| `ipsc-proxy` container | UDP **56002** — repeater CPS Master port |
+| `rysen.cfg` | Enable `[IPSC]` and `[SELF SERVICE]` when commissioning repeaters |
+| Firewall | Allow UDP 56002 from repeater public IPs |
+| Docs | [RELEASE_1.5.0_ROADMAP.md](RELEASE_1.5.0_ROADMAP.md), [IPSC_SELFCARE.md](IPSC_SELFCARE.md) |
+
+MMDVM-only sites: upgrade safely — IPSC stanzas are added disabled by default.
+
+### Disk maintenance (automatic)
+
+Frequent menu upgrades pull new Docker images; old layers accumulate as `<none>` and can fill a 50 GB disk.
+
+| When | What runs |
+|------|-----------|
+| **After every menu upgrade** | Dangling Docker images pruned (`docker image prune -f`) |
+| **Daily 2 AM cron** | `/opt/cleanup-backups.sh` — backup retention + dangling prune + large container log trim |
+| **Disk ≥ 80%** (nightly) | Also removes unused tagged images not referenced by running containers |
+| **Menu → Soft Flush** | Clears `/var/log/rysen/*.log` and prunes dangling Docker images |
+
+Upgrade warns when `/` is above 85% full and blocks at 95% until space is freed.
 
 ---
 

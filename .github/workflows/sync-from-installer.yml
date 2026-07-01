@@ -1,0 +1,99 @@
+# Runs on freestar-systemx-deploy — pulls deployment/ from System-X-Installer.
+# Bootstrapped by scripts/sync-public-deploy.sh (do not edit on public repo by hand).
+
+name: Sync from System-X-Installer
+
+on:
+  workflow_dispatch:
+    inputs:
+      installer_ref:
+        description: System-X-Installer git ref (branch, tag, or SHA)
+        required: false
+        default: master
+  repository_dispatch:
+    types: [installer-deploy-updated]
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout freestar-systemx-deploy
+        uses: actions/checkout@v4
+
+      - name: Resolve installer ref
+        id: ref
+        run: |
+          REF="${{ github.event.client_payload.ref }}"
+          SHA="${{ github.event.client_payload.sha }}"
+          if [ -z "$REF" ]; then
+            REF="${{ github.event.inputs.installer_ref }}"
+          fi
+          if [ -z "$REF" ]; then
+            REF="${{ vars.INSTALLER_SYNC_REF }}"
+          fi
+          if [ -z "$REF" ]; then
+            REF="master"
+          fi
+          echo "ref=$REF" >> "$GITHUB_OUTPUT"
+          if [ -n "$SHA" ]; then
+            echo "sha=$SHA" >> "$GITHUB_OUTPUT"
+          fi
+          echo "Syncing deployment/ from System-X-Installer ref: $REF"
+
+      - name: Checkout System-X-Installer (deployment only)
+        uses: actions/checkout@v4
+        with:
+          repository: ShaYmez/System-X-Installer
+          ref: ${{ steps.ref.outputs.ref }}
+          token: ${{ secrets.INSTALLER_SYNC_PAT }}
+          path: installer-src
+          sparse-checkout: |
+            deployment
+          sparse-checkout-cone-mode: true
+
+      - name: Copy deployment artifacts to repo root
+        run: |
+          set -euo pipefail
+          SRC="installer-src/deployment"
+          for file in \
+            systemx-deploy.sh \
+            CHANGELOG.md \
+            NETWORK_CONFIG.md \
+            LICENSE \
+            DEPLOYMENT.md \
+            IPSC_SELFCARE.md \
+            RELEASE_1.5.0_ROADMAP.md
+          do
+            cp "$SRC/$file" "./$file"
+          done
+          mkdir -p .github/workflows
+          cp "$SRC/github-workflows/sync-from-installer.yml" ".github/workflows/sync-from-installer.yml"
+          git -C installer-src rev-parse HEAD > .installer-sha
+
+      - name: Validate deploy script syntax
+        run: bash -n systemx-deploy.sh
+
+      - name: Commit if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add \
+            systemx-deploy.sh \
+            CHANGELOG.md \
+            NETWORK_CONFIG.md \
+            LICENSE \
+            DEPLOYMENT.md \
+            IPSC_SELFCARE.md \
+            RELEASE_1.5.0_ROADMAP.md \
+            .installer-sha \
+            .github/workflows/sync-from-installer.yml
+          if git diff --staged --quiet; then
+            echo "No changes to sync"
+            exit 0
+          fi
+          SHA=$(cat .installer-sha)
+          git commit -m "sync: update deployment from System-X-Installer @ ${SHA:0:7}"
+          git push
