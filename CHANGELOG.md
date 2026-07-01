@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Version updated to 1.5.0 (aligned with System-X-Installer 1.5.0)
+- Public sync uses satellite pattern (`repository_dispatch` → direct push to `master`)
 - Public sync now includes IPSC documentation files
 
 ## [1.4.1] - 2026-06-20
