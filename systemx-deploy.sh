@@ -1,6 +1,6 @@
 #!/bin/bash
 # SYSTEM-X PUBLIC DEPLOYMENT SCRIPT
-# Version 1.5.0 (01072026)
+# Version 1.5.1 (07072026)
 # Standalone deployment script for System-X installation management
 # Copyright (C) 2021-2026 Shane Daley, M0VUB <shane@freestar.network>
 
@@ -1356,7 +1356,7 @@ EOFSPANISH
     print_info "Creating version tracking..."
     local new_version=$(cd "$temp_dir" && git rev-parse HEAD 2>/dev/null | cut -c1-7)
     if [ -z "$new_version" ]; then
-        new_version="1.5.0"
+        new_version="1.5.1"
     fi
     
     echo "$new_version" > /etc/rysen/.installer_version
@@ -1652,7 +1652,7 @@ show_banner() {
 ║   ╚══════╝   ╚═╝   ╚══════╝   ╚═╝   ╚══════╝╚═╝     ╚═╝    ╚═╝  ╚═╝   ║
 ║                                                                       ║
 ║                     DEPLOYMENT & MANAGEMENT SYSTEM                    ║
-║                             Version 1.5.0                             ║
+║                             Version 1.5.1                             ║
 ║                                 RYSEN                                 ║
 ╚═══════════════════════════════════════════════════════════════════════╝
 EOF
