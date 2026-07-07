@@ -2,10 +2,10 @@
 **RYSEN DMRMaster+ Docker Deployment and Management Install**
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
-![Version](https://img.shields.io/badge/version-1.5.0-green.svg)
+![Version](https://img.shields.io/badge/version-1.5.1-green.svg)
 ![Platform](https://img.shields.io/badge/platform-Debian%20%7C%20Ubuntu-orange.svg)
 
-**Current stable release:** 1.5.0 (July 2026) — Motorola IPSC repeater selfcare
+**Current stable release:** 1.5.1 (July 2026) — Motorola IPSC repeater selfcare
 
 **Professional DMR Network Platform for Ham Radio Operators**
 
@@ -257,9 +257,9 @@ The deployment script includes built-in diagnostics and help:
 
 ## Version Information
 
-- **Current Version**: 1.5.0
-- **Release Date**: July 1, 2026
-- **Supported Installer**: System-X-Installer v1.5.0
+- **Current Version**: 1.5.1
+- **Release Date**: July 7, 2026
+- **Supported Installer**: System-X-Installer v1.5.1
 
 ## License
 
