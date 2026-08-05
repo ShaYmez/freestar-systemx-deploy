@@ -1407,6 +1407,7 @@ EOFSPANISH
     echo "  - Services: Running"
     echo ""
     print_info "New Features Available:"
+    echo "  • systemx-dashboard-update - Dashboard update (no service restart)"
     echo "  • systemx-upgrade        - Full system upgrade"
     echo "  • systemx-upgrade-dryrun - Preview changes"
     echo "  • systemx-check-updates  - Check for updates"
