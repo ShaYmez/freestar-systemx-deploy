@@ -1,0 +1,19 @@
+name: Validate deployment
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate deploy script syntax
+        run: bash -n systemx-deploy.sh
+
+      - name: Verify installer SHA recorded
+        run: test -s .installer-sha
