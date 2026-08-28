@@ -1292,43 +1292,15 @@ EOFSPANISH
         print_warning "Broadcaster not found in repository"
     fi
 
-    # Install FreeSTAR API DMR LastHeard
+    # FreeSTAR API DMR LastHeard (skipped on third-party networks)
     print_header "FreeSTAR API DMR LastHeard"
 
-    if [ -f "$temp_dir/configs/sbin/systemx-dmr-lastheard" ]; then
-        print_info "Installing DMR LastHeard agent..."
-        cp "$temp_dir/configs/sbin/systemx-dmr-lastheard" /usr/local/sbin/systemx-dmr-lastheard
-        chmod 755 /usr/local/sbin/systemx-dmr-lastheard
-        chown root:root /usr/local/sbin/systemx-dmr-lastheard
-        mkdir -p /var/lib/freestar-api-agent
-        print_success "DMR LastHeard agent installed"
-
-        if [ ! -f /etc/rysen/freestar-api-dmr.conf ]; then
-            cat > /etc/rysen/freestar-api-dmr.conf << 'EOF'
-# FreeSTAR API v2 DMR LastHeard. Token goes in TOKEN_FILE, not here.
-API_URL=https://api.freestar.network/v2/ingest/activity
-TOKEN_FILE=/etc/rysen/freestar-api-agent.token
-MARIADB_CONTAINER=mariadb
-WINDOW_HOURS=24
-FDMR_MON_CFG=/etc/rysen/fdmr-mon.cfg
-BROADCASTER_CFG=/etc/rysen/systemx-broadcaster.cfg
-DUMP_PATH=/var/lib/freestar-api-agent/dmr-last.json
-EOF
-            chmod 640 /etc/rysen/freestar-api-dmr.conf
-            chown root:root /etc/rysen/freestar-api-dmr.conf
-            print_success "DMR LastHeard config created"
-        fi
-
-        if ! crontab -l 2>/dev/null | grep -q "systemx-dmr-lastheard"; then
-            (crontab -l 2>/dev/null; echo "12 * * * * /usr/local/sbin/systemx-dmr-lastheard >/dev/null 2>&1") | crontab -
-            print_success "DMR LastHeard cron job configured (hourly at :12)"
-        fi
-
-        if [ ! -s /etc/rysen/freestar-api-agent.token ]; then
-            print_warning "No /etc/rysen/freestar-api-agent.token — DMR LastHeard will skip POST until a token is issued"
-        fi
+    if declare -f setup_freestar_dmr_lastheard >/dev/null 2>&1; then
+        setup_freestar_dmr_lastheard "$temp_dir/configs/sbin/systemx-dmr-lastheard"
+    elif declare -f run_upgrade_common >/dev/null 2>&1; then
+        run_upgrade_common "$temp_dir" setup_freestar_dmr_lastheard "$temp_dir/configs/sbin/systemx-dmr-lastheard"
     else
-        print_warning "DMR LastHeard agent not found in repository"
+        print_info "Skipping FreeSTAR DMR LastHeard setup"
     fi
     
     # Install Automatic Update Checker

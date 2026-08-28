@@ -37,6 +37,7 @@ Custom **web assets** preserved on upgrade:
 | Servers CSV | `[api] servers_csv_url` | Dashboard wwservers, JSON refresh |
 | Status POST URL | `[api] status_api_url` | Token broadcaster (cron, every 5 min) |
 | Status API secret | `[api] status_api_secret` | Token broadcaster |
+| FreeSTAR LastHeard ingest | `[api] lastheard_api_url` | FreeSTAR only. Other networks leave empty |
 | CSV header rows to skip | `[api] servers_csv_skip_lines` | wwservers page |
 | Offline badge threshold (minutes) | `[api] server_stale_minutes` | Verified-server badges |
 
@@ -143,6 +144,7 @@ bridge_json_url = https://api.example.network/v1/bridge_ids.json
 servers_csv_url = https://api.example.network/v1/SystemX_Hosts.csv
 status_api_url = https://api.example.network/v1/update-server-status.php
 status_api_secret = your-secret-from-api-install
+; Do not set lastheard_api_url — that posts occupancy to FreeSTAR API v2
 servers_csv_skip_lines = 2
 server_stale_minutes = 10
 ```
