@@ -1302,6 +1302,15 @@ EOFSPANISH
     else
         print_info "Skipping FreeSTAR DMR LastHeard setup"
     fi
+
+    print_header "FreeSTAR Device API Key Issuer"
+    if declare -f setup_freestar_device_key_issuer >/dev/null 2>&1; then
+        setup_freestar_device_key_issuer
+    elif declare -f run_upgrade_common >/dev/null 2>&1; then
+        run_upgrade_common "$temp_dir" setup_freestar_device_key_issuer
+    else
+        print_info "Skipping FreeSTAR Device API issuer setup"
+    fi
     
     # Install Automatic Update Checker
     if [ -f "$temp_dir/configs/sbin/systemx-check-updates-cron" ]; then
