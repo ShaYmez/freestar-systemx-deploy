@@ -38,6 +38,9 @@ Custom **web assets** preserved on upgrade:
 | Status POST URL | `[api] status_api_url` | Token broadcaster (cron, every 5 min) |
 | Status API secret | `[api] status_api_secret` | Token broadcaster |
 | FreeSTAR LastHeard ingest | `[api] lastheard_api_url` | FreeSTAR only. Other networks leave empty |
+| Device key issuer URL | `[api] device_key_issuer_url` | FreeSTAR hotspot Selfcare only |
+| Device issuer secret | `[api] device_key_issuer_token` | Server-side PHP only; never expose to browsers |
+| Selfcare runtime control URL | `[api] device_control_url` | FreeSTAR Drop QSO/Dynamic status and actions |
 | CSV header rows to skip | `[api] servers_csv_skip_lines` | wwservers page |
 | Offline badge threshold (minutes) | `[api] server_stale_minutes` | Verified-server badges |
 
@@ -71,6 +74,28 @@ Verify token reporting:
 sudo /usr/local/sbin/systemx-token-broadcaster
 crontab -l | grep systemx-token-broadcaster
 ```
+
+### FreeSTAR hotspot Selfcare
+
+The Device API key generator and runtime controls share one least-privilege
+per-master issuer credential. Configure these exact values only on FreeSTAR
+hosts:
+
+```ini
+device_key_issuer_url = https://api.freestar.network/v2/internal/device-keys
+device_key_issuer_token = replace-with-this-master-issuer-token
+device_control_url = https://api.freestar.network/v2/internal/device-control
+```
+
+The token is held by PHP and never sent to the browser. Runtime controls are
+limited to exact-device status, Drop QSO, and Drop Dynamic. The existing
+Selfcare Disconnect button keeps its independent `DISC=1` flow.
+
+Existing `systemx-network.ini` files are preserved during upgrade; the upgrade
+helper adds only the missing standard `device_control_url` on recognized
+FreeSTAR hosts and never invents an issuer token. Third-party networks have the
+runtime URL and issuer token removed; their Selfcare UI and legacy controls
+remain unchanged.
 
 ---
 
