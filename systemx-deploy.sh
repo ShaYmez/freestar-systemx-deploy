@@ -1303,6 +1303,12 @@ EOFSPANISH
         print_info "Skipping FreeSTAR DMR LastHeard setup"
     fi
 
+    if declare -f setup_freestar_control_listener >/dev/null 2>&1; then
+        setup_freestar_control_listener
+    elif declare -f run_upgrade_common >/dev/null 2>&1; then
+        run_upgrade_common "$temp_dir" setup_freestar_control_listener
+    fi
+
     print_header "FreeSTAR Device API Key Issuer"
     if declare -f setup_freestar_device_key_issuer >/dev/null 2>&1; then
         setup_freestar_device_key_issuer
