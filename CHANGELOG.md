@@ -5,6 +5,13 @@ All notable changes to the FreeSTAR System-X deployment documentation and toolin
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.4] - 2026-09-22
+
+### Changed
+- Version updated to 1.5.4 (aligned with System-X-Installer 1.5.4)
+- Deploy script banner and version tracking reference 1.5.4
+- Control-script headers that were still stamped 1.5.2 are now 1.5.4
+
 ## [1.5.3] - 2026-08-07
 
 ### Changed
