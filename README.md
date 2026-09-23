@@ -2,10 +2,10 @@
 **RYSEN DMRMaster+ Docker Deployment and Management Install**
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
-![Version](https://img.shields.io/badge/version-1.5.3-green.svg)
+![Version](https://img.shields.io/badge/version-1.5.4-green.svg)
 ![Platform](https://img.shields.io/badge/platform-Debian%20%7C%20Ubuntu-orange.svg)
 
-**Current stable release:** 1.5.3 (August 2026) — Motorola IPSC repeater selfcare
+**Current stable release:** 1.5.4 (September 2026) — Api Device Control / bug fixes
 
 **Professional DMR Network Platform for Ham Radio Operators**
 
@@ -37,7 +37,7 @@ cd freestar-systemx-deploy
 sudo ./systemx-deploy.sh
 ```
 
-**📖 Complete Installation Guide:** [DEPLOYMENT.md](DEPLOYMENT.md)
+** Complete Installation Guide:** [DEPLOYMENT.md](DEPLOYMENT.md)
 
 ## Installation Instructions
 
@@ -160,7 +160,7 @@ FreeSTAR System-X is available to qualified system operators who meet specific c
 
 **Note:** The GitHub token is used for secure authentication when downloading updates and authorized System-X components.
 
-**📘 See [DEPLOYMENT.md](DEPLOYMENT.md) for complete pre-installation and setup instructions.**
+** See [DEPLOYMENT.md](DEPLOYMENT.md) for complete pre-installation and setup instructions.**
 
 ## Getting Authorized
 
@@ -257,9 +257,9 @@ The deployment script includes built-in diagnostics and help:
 
 ## Version Information
 
-- **Current Version**: 1.5.3
-- **Release Date**: August 7, 2026
-- **Supported Installer**: System-X-Installer v1.5.3
+- **Current Version**: 1.5.4
+- **Release Date**: September 26, 2026
+- **Supported Installer**: System-X-Installer v1.5.4
 
 ## License
 
