@@ -234,6 +234,17 @@ System-X 1.5.0 adds IPSC repeater selfcare (static TS1/TS2) alongside MMDVM hots
 
 MMDVM-only sites: upgrade safely — IPSC stanzas are added disabled by default.
 
+### Native Hytera repeaters (1.6)
+
+| Component | Notes |
+|-----------|-------|
+| `hytera-proxy` container | UDP **50000-50032** — CPS 50000 / 50001 / 50002 |
+| `rysen.cfg` | Enable `[HYTERA]` and `[SELF SERVICE]` when commissioning repeaters |
+| Firewall | Allow UDP 50000-50002 from repeater public IPs |
+| Docs | [HYTERA_SELFCARE.md](HYTERA_SELFCARE.md) |
+
+MMDVM-only and IPSC-only sites: leave `[HYTERA] ENABLED: False`. The proxy container starts; RYSEN does not accept Hytera peers.
+
 ### Disk maintenance (automatic)
 
 Frequent menu upgrades pull new Docker images; old layers accumulate as `<none>` and can fill a 50 GB disk.
