@@ -245,6 +245,18 @@ MMDVM-only sites: upgrade safely — IPSC stanzas are added disabled by default.
 
 MMDVM-only and IPSC-only sites: leave `[HYTERA] ENABLED: False`. The proxy container starts; RYSEN does not accept Hytera peers.
 
+### YSF reflectors
+
+| Component | Notes |
+|-----------|-------|
+| `rysen` container | UDP **54300-54399** — one local port per reflector stanza |
+| `rysen.cfg` | `[YSF-EXAMPLE]` stays `ENABLED: False` until a room is commissioned |
+| `rules.py` | YSF leg is timeslot 2 / talkgroup 9. Existing `rules.py` is not replaced |
+| Firewall | Allow UDP 54300-54399. Reflector listen port is usually UDP 42000, outbound |
+| Docs | [YSF.md](YSF.md) |
+
+Sites that do not link a YSF room: leave the example stanza disabled.
+
 ### Disk maintenance (automatic)
 
 Frequent menu upgrades pull new Docker images; old layers accumulate as `<none>` and can fill a 50 GB disk.
@@ -473,6 +485,7 @@ Contact **shane@freestar.network** or the FreeSTAR Network Discord for support.
 | [README.md](README.md) | Prospective operators | Authorization, requirements, contact |
 | [DEPLOYMENT.md](DEPLOYMENT.md) | Operators | This guide — install, upgrade, utilities |
 | [NETWORK_CONFIG.md](NETWORK_CONFIG.md) | Operators | `systemx-network.ini` reference |
+| [YSF.md](YSF.md) | Operators | YSF reflector stanza, ports, and rules.py leg |
 | [CHANGELOG.md](CHANGELOG.md) | All | Release notes |
 
 ---
