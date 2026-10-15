@@ -2,7 +2,7 @@
 **RYSEN DMRMaster+ Docker Deployment and Management Install**
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
-![Version](https://img.shields.io/badge/version-1.5.4-green.svg)
+![Version](https://img.shields.io/badge/version-1.6.0-green.svg)
 ![Platform](https://img.shields.io/badge/platform-Debian%20%7C%20Ubuntu-orange.svg)
 
 **Current stable release:** 1.6.0 (October 2026) — Hytera Protocol / Unit Calls
