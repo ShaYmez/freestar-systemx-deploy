@@ -5,7 +5,7 @@
 ![Version](https://img.shields.io/badge/version-1.5.4-green.svg)
 ![Platform](https://img.shields.io/badge/platform-Debian%20%7C%20Ubuntu-orange.svg)
 
-**Current stable release:** 1.5.4 (September 2026) — Api Device Control / bug fixes
+**Current stable release:** 1.6.0 (October 2026) — Hytera Protocol / Unit Calls
 
 **Professional DMR Network Platform for Ham Radio Operators**
 
@@ -257,9 +257,9 @@ The deployment script includes built-in diagnostics and help:
 
 ## Version Information
 
-- **Current Version**: 1.5.4
-- **Release Date**: September 26, 2026
-- **Supported Installer**: System-X-Installer v1.5.4
+- **Current Version**: 1.6.0
+- **Release Date**: October, 2026
+- **Supported Installer**: System-X-Installer v1.6.0
 
 ## License
 
