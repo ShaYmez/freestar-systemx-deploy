@@ -262,7 +262,7 @@ Sites that do not link a YSF room: leave the example stanza disabled.
 | Component | Notes |
 |-----------|-------|
 | `rysen` container | UDP **41410-41499** — one local port per reflector stanza |
-| `rysen.cfg` | `[NXDN-EXAMPLE]` stays `ENABLED: False` until a room is commissioned |
+| `rysen.cfg` | `[NXDN-EXAMPLE]` stays `ENABLED: False` until a room is commissioned. `[ALIASES]` downloads RadioID `nxdn.csv`; `NXDN_ID` 1272 is the fallback |
 | `rules.py` | NXDN leg is timeslot 2 / talkgroup 9. Existing `rules.py` is not replaced |
 | Firewall | Allow UDP 41410-41499. Reflector listen port is usually UDP 41400, outbound |
 | Docs | [NXDN.md](NXDN.md) |
