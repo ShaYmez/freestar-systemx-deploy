@@ -257,6 +257,18 @@ MMDVM-only and IPSC-only sites: leave `[HYTERA] ENABLED: False`. The proxy conta
 
 Sites that do not link a YSF room: leave the example stanza disabled.
 
+### NXDN reflectors
+
+| Component | Notes |
+|-----------|-------|
+| `rysen` container | UDP **41410-41499** — one local port per reflector stanza |
+| `rysen.cfg` | `[NXDN-EXAMPLE]` stays `ENABLED: False` until a room is commissioned |
+| `rules.py` | NXDN leg is timeslot 2 / talkgroup 9. Existing `rules.py` is not replaced |
+| Firewall | Allow UDP 41410-41499. Reflector listen port is usually UDP 41400, outbound |
+| Docs | [NXDN.md](NXDN.md) |
+
+Sites that do not link an NXDN room: leave the example stanza disabled.
+
 ### Disk maintenance (automatic)
 
 Frequent menu upgrades pull new Docker images; old layers accumulate as `<none>` and can fill a 50 GB disk.
