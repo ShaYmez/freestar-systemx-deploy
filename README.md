@@ -2,10 +2,10 @@
 **RYSEN DMRMaster+ Docker Deployment and Management Install**
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
-![Version](https://img.shields.io/badge/version-1.6.0-green.svg)
+![Version](https://img.shields.io/badge/version-1.6.1-green.svg)
 ![Platform](https://img.shields.io/badge/platform-Debian%20%7C%20Ubuntu-orange.svg)
 
-**Current stable release:** 1.6.0 (October 2026) — Hytera Protocol / Unit Calls
+**Current stable release:** 1.6.1 (October 2026) — Hytera Release Feature / YSFpeer / NXDNpeer
 
 **Professional DMR Network Platform for Ham Radio Operators**
 
@@ -257,9 +257,9 @@ The deployment script includes built-in diagnostics and help:
 
 ## Version Information
 
-- **Current Version**: 1.6.0
+- **Current Version**: 1.6.1
 - **Release Date**: October, 2026
-- **Supported Installer**: System-X-Installer v1.6.0
+- **Supported Installer**: System-X-Installer v1.6.1
 
 ## License
 
