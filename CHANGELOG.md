@@ -5,6 +5,14 @@ All notable changes to the FreeSTAR System-X deployment documentation and toolin
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.2] - 2026-10-27
+
+### Changed
+- Version updated to 1.6.2 (aligned with System-X-Installer and RYSEN 1.6.2)
+- Deploy script banner and version tracking reference 1.6.2
+- Control-script headers stamped 1.6.2
+- HR106x direct HMTP commissioning documented separately from the RD625/RD985 proxy path
+
 ## [1.6.1] - 2026-10-23
 
 ### Changed
@@ -72,8 +80,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Deploy script uses shared network/broadcaster helpers from System-X-Installer
 - Upgrade failures no longer masked in deploy script
 - Version updated to 1.4.1
-
-## [Unreleased]
 
 ## [1.4.0] - 2026-01-15
 
