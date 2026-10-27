@@ -245,6 +245,8 @@ MMDVM-only sites: upgrade safely — IPSC stanzas are added disabled by default.
 
 MMDVM-only and IPSC-only sites: leave `[HYTERA] ENABLED: False`. The proxy container starts; RYSEN does not accept Hytera peers.
 
+RYSEN 1.6.2 speaks HR106x HMTP. That repeater uses its own direct `[HYTERA]` stanza with `HMTP_MODE: True` and `RDAC_DISCOVERY: False`. The template stanza stays `HMTP_MODE: False` for RD625/RD985 behind `hytera-proxy`. See [HYTERA_SELFCARE.md](../docs/HYTERA_SELFCARE.md).
+
 ### YSF reflectors
 
 | Component | Notes |
