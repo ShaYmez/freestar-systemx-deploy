@@ -2,10 +2,10 @@
 **RYSEN DMRMaster+ Docker Deployment and Management Install**
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
-![Version](https://img.shields.io/badge/version-1.6.3-green.svg)
+![Version](https://img.shields.io/badge/version-1.6.4-green.svg)
 ![Platform](https://img.shields.io/badge/platform-Debian%20%7C%20Ubuntu-orange.svg)
 
-**Current stable release:** 1.6.3 (November 2026) — Talker-Alias / Dashboard bugfixes / Hytera polishes
+**Current stable release:** 1.6.4 (November 2026) — Talker-Alias / Dashboard bugfixes / Hytera polishes / Sticky TG (Auto-Static)
 
 **Professional DMR Network Platform for Ham Radio Operators**
 
@@ -257,9 +257,9 @@ The deployment script includes built-in diagnostics and help:
 
 ## Version Information
 
-- **Current Version**: 1.6.3
+- **Current Version**: 1.6.4
 - **Release Date**: November, 2026
-- **Supported Installer**: System-X-Installer v1.6.3
+- **Supported Installer**: System-X-Installer v1.6.4
 
 ## License
 
