@@ -78,8 +78,9 @@ crontab -l | grep systemx-token-broadcaster
 ### FreeSTAR hotspot Selfcare
 
 The Device API key generator and runtime controls share one least-privilege
-per-master issuer credential. Configure these exact values only on FreeSTAR
-hosts:
+per-master issuer credential. The stock INI omits these keys. Install and
+upgrade write the two URLs, with an empty token, only on a FreeSTAR host.
+Set the token from `issue-issuer-token.php`. Do not reuse an ops token.
 
 ```ini
 device_key_issuer_url = https://api.freestar.network/v2/internal/device-keys
@@ -91,11 +92,14 @@ The token is held by PHP and never sent to the browser. Runtime controls are
 limited to exact-device status, Drop QSO, and Drop Dynamic. The existing
 Selfcare Disconnect button keeps its independent `DISC=1` flow.
 
-Existing `systemx-network.ini` files are preserved during upgrade; the upgrade
-helper adds only the missing standard `device_control_url` on recognized
-FreeSTAR hosts and never invents an issuer token. Third-party networks have the
-runtime URL and issuer token removed; their Selfcare UI and legacy controls
-remain unchanged.
+Existing `systemx-network.ini` files are preserved during upgrade. On a
+recognized FreeSTAR host the upgrade adds a missing `device_key_issuer_url`
+and `device_control_url`, and never invents an issuer token. A host whose
+`lastheard_api_url` is not `api.freestar.network`, or whose `lastheard_api_url`
+is empty and whose `org_url` and `status_api_url` are not FreeSTAR, has the
+issuer URL, runtime URL, and issuer token removed. Selfcare and the legacy
+Disconnect button stay. A stock install is FreeSTAR-shaped. Change those
+identity URLs before go-live on any other network so that cleanup runs.
 
 ---
 
