@@ -5,6 +5,15 @@ All notable changes to the FreeSTAR System-X deployment documentation and toolin
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.5] - 2026-11-18
+
+### Changed
+- Version updated to 1.6.5 (aligned with System-X-Installer and RYSEN 1.6.5)
+- Deploy script banner and version tracking reference 1.6.5
+- Control-script headers stamped 1.6.5
+- Dashboard label updated to `RS18.11.26`
+- RapidStatic support, manager audit controls, and third-party API selection ship with the production installer
+
 ## [1.6.4] - 2026-11-02
 
 ### Changed
